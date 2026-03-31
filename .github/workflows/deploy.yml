@@ -3,44 +3,28 @@ name: Deploy to Aliyun OSS
 on:
   push:
     branches:
-      - main
+      - main  # 确保这里的分支名与你的主分支名一致
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # 强制使用 Node.js 24
-  
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '23'
           cache: 'npm'
-
       - name: Install dependencies
         run: npm ci
-
       - name: Build project
         run: npm run build
-
       - name: Install ossutil
         run: |
-          wget https://gosspublic.alicdn.com/ossutil/1.7.19/ossutil-linux-amd64.zip
-          unzip -o ossutil-linux-amd64.zip
-          sudo mv ossutil /usr/local/bin/
-          sudo chmod +x /usr/local/bin/ossutil
-
+          sudo -v ; curl https://gosspublic.alicdn.com/ossutil/install.sh | sudo bash
       - name: Configure ossutil
         run: |
-          ossutil config -e oss-cn-hongkong.aliyuncs.com \
-            -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
-            -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
-            --language CH
-
+          ossutil config -e oss-cn-hongkong.aliyuncs.com -i ${{ secrets.OSS_ACCESS_KEY_ID }} -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} --language CH
       - name: Sync files to OSS
         run: ossutil cp ./dist oss://guangda-cui/ --recursive --update
