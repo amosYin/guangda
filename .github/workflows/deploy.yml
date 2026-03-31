@@ -26,10 +26,11 @@ jobs:
         run: npm run build
 
       - name: Upload to OSS
-        uses: aliyun/oss-website-action@v1
+        uses: aliyun/oss-upload-action@v1
         with:
           accessKeyId: ${{ secrets.OSS_ACCESS_KEY_ID }}
           accessKeySecret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
           bucket: guangda-cui
           endpoint: oss-cn-hongkong.aliyuncs.com
           folder: dist
+          include: '*'
