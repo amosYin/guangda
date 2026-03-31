@@ -3,7 +3,7 @@ name: Deploy to Aliyun OSS
 on:
   push:
     branches:
-      - main          # 替换为你的默认分支名（master 或 main）
+      - main
 
 jobs:
   deploy:
@@ -25,11 +25,19 @@ jobs:
       - name: Build project
         run: npm run build
 
-      - name: Upload to OSS
-        uses: aliyun/oss-upload@v1
-        with:
-          accessKeyId: ${{ secrets.OSS_ACCESS_KEY_ID }}
-          accessKeySecret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
-          bucket: guangda-cui
-          endpoint: oss-cn-hongkong.aliyuncs.com
-          folder: dist
+      - name: Install ossutil
+        run: |
+          wget https://gosspublic.alicdn.com/ossutil/1.7.19/ossutil-linux-amd64.zip
+          unzip -o ossutil-linux-amd64.zip
+          sudo mv ossutil /usr/local/bin/
+          sudo chmod +x /usr/local/bin/ossutil
+
+      - name: Configure ossutil
+        run: |
+          ossutil config -e oss-cn-hongkong.aliyuncs.com \
+            -i ${{ secrets.OSS_ACCESS_KEY_ID }} \
+            -k ${{ secrets.OSS_ACCESS_KEY_SECRET }} \
+            --language CH
+
+      - name: Sync files to OSS
+        run: ossutil cp ./dist oss://guangda-cui/ --recursive --update
