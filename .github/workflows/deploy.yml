@@ -26,7 +26,7 @@ jobs:
         run: npm run build
 
       - name: Upload to OSS
-        uses: aliyun/oss-upload-action@v1
+        uses: aliyun/oss-upload-ossutil@v1
         with:
           accessKeyId: ${{ secrets.OSS_ACCESS_KEY_ID }}
           accessKeySecret: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
